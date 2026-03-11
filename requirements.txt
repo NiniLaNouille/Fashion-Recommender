@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+playwright
+beautifulsoup4
+requests
+numpy
+scikit-learn
+sentence-transformers
+transformers
+torch
+pillow
+sqlite-utils
