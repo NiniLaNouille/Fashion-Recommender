@@ -1,32 +1,43 @@
 import requests
+from bs4 import BeautifulSoup
+
 
 def scrape():
 
-    url = "https://api.zalando.com/articles?category=women&limit=20"
-
+    url = "https://www.zalando.fi/naiset-vaatteet/"
     headers = {
-        "accept": "application/json"
+        "User-Agent": "Mozilla/5.0"
     }
 
     response = requests.get(url, headers=headers)
-
-    data = response.json()
+    soup = BeautifulSoup(response.text, "html.parser")
 
     products = []
 
-    for item in data.get("content", []):
+    items = soup.select("article")
 
-        products.append({
-            "id": item["id"],
-            "title": item["name"],
-            "brand": item["brand"]["name"],
-            "category": item["category"],
-            "color": item.get("color", ""),
-            "price": item["price"]["value"],
-            "description": item["name"],
-            "image_url": item["media"]["images"][0]["smallUrl"],
-            "product_url": item["shopUrl"],
-            "source": "zalando"
-        })
+    for item in items[:20]:
+
+        try:
+            title = item.select_one("h3").text.strip()
+            brand = item.select_one("h4").text.strip()
+            price = item.select_one("span").text.strip()
+            image = item.select_one("img")["src"]
+
+            products.append({
+                "id": title,
+                "title": title,
+                "brand": brand,
+                "category": "unknown",
+                "color": "",
+                "price": price,
+                "description": title,
+                "image_url": image,
+                "product_url": "",
+                "source": "zalando"
+            })
+
+        except Exception:
+            continue
 
     return products
